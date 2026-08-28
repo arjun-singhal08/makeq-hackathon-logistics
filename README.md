@@ -24,7 +24,7 @@ I'm a Business AI Systems student at the National University of Singapore, explo
 
 A web application built to help hackathon organizers manage participant queues and streamline event operations.
 
-🔗 **Live Demo:** https://arjun-singhal08.onrender.com
+🔗 🔗 **[Try MakeQ →](https://arjun-singhal08.onrender.com)**
 💻 **Source Code:** https://github.com/arjun-singhal08/arjun-singhal08
 
 The project gave me my first hands-on experience building and running a web application and introduced me to technologies and workflows that I'm continuing to learn.
