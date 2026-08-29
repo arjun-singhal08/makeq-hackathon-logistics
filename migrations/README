@@ -1,0 +1,4 @@
+MakeQ database migrations are managed by Flask-Migrate/Alembic.
+
+Fresh database: flask --app app db upgrade
+Existing pre-migration Phase 1 database: stamp 0001_phase1_baseline, then upgrade.
