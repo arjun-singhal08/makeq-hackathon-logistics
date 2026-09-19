@@ -1,5 +1,6 @@
 import importlib
 import sys
+from datetime import date, time
 from pathlib import Path
 
 import pytest
@@ -224,6 +225,94 @@ def test_migration_from_food_foundation_preserves_existing_ticket(tmp_path):
         assert db.session.execute(text("PRAGMA foreign_key_check")).all() == []
         db.session.remove()
         db.engine.dispose()
+
+
+def test_admin_inventory_summary_renders_active_reservations(database_uri, monkeypatch):
+    monkeypatch.setenv("MAKEQ_DATABASE_URL", database_uri)
+    monkeypatch.setenv("MAKEQ_SECRET_KEY", "admin-inventory-route-test")
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    sys.modules.pop("app", None)
+    app_module = importlib.import_module("app")
+    app_module.app.config["TESTING"] = True
+    try:
+        with app_module.app.app_context():
+            upgrade(directory=str(MIGRATIONS_DIR))
+            from models import (
+                Event,
+                MealOption,
+                MealService,
+                MealServiceStatus,
+                PickupWindow,
+                Queue,
+                db,
+            )
+
+            event = Event(name="Admin Inventory Event", active=True)
+            db.session.add(event)
+            db.session.flush()
+
+            queue = Queue(
+                event_id=event.id,
+                name="Standard",
+                description="Standard meal collection",
+                active=True,
+                paused=False,
+            )
+            db.session.add(queue)
+            db.session.flush()
+
+            meal = MealService(
+                event_id=event.id,
+                name="Lunch",
+                service_date=date(2026, 8, 29),
+                start_time=time(12, 0),
+                end_time=time(13, 30),
+                location="Atrium",
+                status=MealServiceStatus.OPEN,
+            )
+            db.session.add(meal)
+            db.session.flush()
+
+            option = MealOption(
+                meal_service_id=meal.id,
+                queue_id=queue.id,
+                name="Standard",
+                description="Standard lunch",
+                planned_quantity=15,
+                received_quantity=15,
+                available_quantity=10,
+                allocated_quantity=3,
+                collected_quantity=2,
+                active=True,
+            )
+            db.session.add(option)
+            db.session.flush()
+
+            window = PickupWindow(
+                meal_service_id=meal.id,
+                start_time=time(12, 0),
+                end_time=time(12, 15),
+                capacity=20,
+                reserved_quantity=3,
+                collected_quantity=2,
+                active=True,
+            )
+            db.session.add(window)
+            db.session.commit()
+
+        client = app_module.app.test_client()
+        with client.session_transaction() as session:
+            session["is_admin"] = True
+
+        response = client.get("/admin")
+        assert response.status_code == 200
+        assert "Admin Inventory Event" in response.get_data(as_text=True)
+        assert "Standard" in response.get_data(as_text=True)
+    finally:
+        with app_module.app.app_context():
+            db.session.remove()
+            db.engine.dispose()
+        sys.modules.pop("app", None)
 
 
 def test_admin_routes_render_and_manage_roster(database_uri, monkeypatch):

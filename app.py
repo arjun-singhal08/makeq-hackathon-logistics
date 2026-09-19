@@ -742,7 +742,7 @@ def admin_deck():
         for opt in options:
             initial = opt.received_quantity or opt.planned_quantity or 1
             available = opt.available_quantity
-            reserved = opt.reserved_quantity
+            reserved = max(0, opt.allocated_quantity - opt.collected_quantity)
             collected = opt.collected_quantity
             pct_remaining = round((available / initial) * 100) if initial > 0 else 0
             if pct_remaining > 35:
