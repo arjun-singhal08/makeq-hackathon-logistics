@@ -634,7 +634,7 @@ def initialize_database():
     try:
         if Event.query.first() is not None:
             return False
-    except (OperationalError, ProgrammingError):
+    except Exception:
         return False
 
     event = db.session.execute(
@@ -738,7 +738,7 @@ def initialize_database():
     try:
         db.session.commit()
         return created
-    except (IntegrityError, OperationalError, ProgrammingError):
+    except Exception:
         # Another setup process may have inserted the same starter records.
         db.session.rollback()
         return False

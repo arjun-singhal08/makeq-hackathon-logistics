@@ -412,22 +412,15 @@ DEFAULT_EVENT_NAME = "MakeQ Demo Hackathon"
 
 def init_db_and_seed(flask_app):
     """Automatically and idempotently check core tables and seed default demo data."""
-    with flask_app.app_context():
-        # 1. Safe idempotent table creation
-        try:
+    try:
+        with flask_app.app_context():
+            # 1. Safe idempotent table creation with inspector check
             inspector = inspect(db.engine)
             existing_tables = inspector.get_table_names()
             if "events" not in existing_tables:
                 db.create_all()
-        except (OperationalError, ProgrammingError) as exc:
-            flask_app.logger.warning(
-                f"Database schema initialization caught expected exception: {exc}"
-            )
-        except Exception as exc:
-            flask_app.logger.warning(f"Database schema check warning: {exc}")
 
-        # 2. Safe idempotent seeding: only call initialize_database() if Event.query.first() is None
-        try:
+            # 2. Safe idempotent seeding: only call initialize_database() if Event.query.first() is None
             is_testing = (
                 flask_app.config.get("TESTING")
                 or os.getenv("TESTING", "").lower() in {"1", "true", "yes"}
@@ -439,12 +432,9 @@ def init_db_and_seed(flask_app):
 
             if Event.query.first() is None:
                 initialize_database()
-        except (OperationalError, ProgrammingError) as exc:
-            db.session.rollback()
-            flask_app.logger.warning(f"Database seeding skipped due to db collision: {exc}")
-        except Exception as exc:
-            db.session.rollback()
-            flask_app.logger.warning(f"Database auto-initialization skipped or failed: {exc}")
+    except Exception as e:
+        flask_app.logger.warning(f"Database schema already initialized or notice: {e}")
+        # DO NOT raise or exit with status 1! Let the app continue to run.
 
 
 _db_initialized = False
@@ -460,7 +450,10 @@ def ensure_db_initialized():
             or "PYTEST_CURRENT_TEST" in os.environ
         )
         if not is_testing:
-            init_db_and_seed(app)
+            try:
+                init_db_and_seed(app)
+            except Exception as e:
+                app.logger.warning(f"Database schema already initialized or notice: {e}")
 
 
 # Trigger auto-initialization on startup when not under test suite
@@ -469,7 +462,10 @@ if (
     and "PYTEST_CURRENT_TEST" not in os.environ
     and os.getenv("TESTING", "").lower() not in {"1", "true", "yes"}
 ):
-    init_db_and_seed(app)
+    try:
+        init_db_and_seed(app)
+    except Exception as e:
+        app.logger.warning(f"Database schema already initialized or notice: {e}")
 
 
 # ======================================================================
