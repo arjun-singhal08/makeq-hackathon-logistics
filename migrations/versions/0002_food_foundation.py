@@ -39,6 +39,11 @@ inventory_movement_type = sa.Enum(
 
 
 def upgrade():
+    conn = op.get_bind()
+    tables = sa.inspect(conn).get_table_names()
+    if "meal_services" in tables:
+        return
+
     op.create_index("uq_queue_id_event", "queues", ["id", "event_id"], unique=True)
 
     op.create_table(

@@ -15,6 +15,11 @@ depends_on = None
 
 
 def upgrade():
+    conn = op.get_bind()
+    tables = sa.inspect(conn).get_table_names()
+    if "participants" in tables:
+        return
+
     op.create_table(
         "teams",
         sa.Column("id", sa.Integer(), primary_key=True),

@@ -43,6 +43,22 @@ def run_migrations_online():
             compare_type=True,
             render_as_batch=True,
         )
+
+        from sqlalchemy import inspect
+        from alembic.migration import MigrationContext
+        from alembic.script import ScriptDirectory
+
+        inspector = inspect(connection)
+        tables = set(inspector.get_table_names())
+        if "events" in tables:
+            mig_context = MigrationContext.configure(connection)
+            if mig_context.get_current_revision() is None:
+                script = ScriptDirectory.from_config(config)
+                head_rev = script.get_current_head()
+                with connection.begin():
+                    mig_context.stamp(script, head_rev)
+                return
+
         with context.begin_transaction():
             context.run_migrations()
 

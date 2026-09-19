@@ -420,6 +420,22 @@ def init_db_and_seed(flask_app):
             if "events" not in existing_tables:
                 db.create_all()
 
+            # Stamp Alembic version so CLI migration checks know schema is at head
+            try:
+                from alembic.migration import MigrationContext
+                from alembic.script import ScriptDirectory
+                from alembic.config import Config
+
+                alembic_cfg = Config("migrations/alembic.ini")
+                script = ScriptDirectory.from_config(alembic_cfg)
+                head_rev = script.get_current_head()
+                with db.engine.begin() as conn:
+                    mig_context = MigrationContext.configure(conn)
+                    if mig_context.get_current_revision() is None:
+                        mig_context.stamp(script, head_rev)
+            except Exception as stamp_exc:
+                flask_app.logger.warning(f"Alembic stamp notice: {stamp_exc}")
+
             # 2. Safe idempotent seeding: only call initialize_database() if Event.query.first() is None
             is_testing = (
                 flask_app.config.get("TESTING")
@@ -456,9 +472,15 @@ def ensure_db_initialized():
                 app.logger.warning(f"Database schema already initialized or notice: {e}")
 
 
-# Trigger auto-initialization on startup when not under test suite
+# Trigger auto-initialization on startup when running as application server
+is_cli_invocation = any(
+    cmd in os.path.basename(sys.argv[0]).lower()
+    for cmd in ("flask", "alembic")
+) or any(arg in sys.argv for arg in ("db", "upgrade", "migrate", "stamp"))
+
 if (
-    "pytest" not in sys.modules
+    not is_cli_invocation
+    and "pytest" not in sys.modules
     and "PYTEST_CURRENT_TEST" not in os.environ
     and os.getenv("TESTING", "").lower() not in {"1", "true", "yes"}
 ):
