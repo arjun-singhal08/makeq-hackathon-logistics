@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event as sqlalchemy_event
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
 
 
 db = SQLAlchemy()
@@ -630,6 +631,12 @@ class Announcement(db.Model):
 
 def initialize_database():
     """Idempotently add local starter configuration; migrations own the schema."""
+    try:
+        if Event.query.first() is not None:
+            return False
+    except (OperationalError, ProgrammingError):
+        return False
+
     event = db.session.execute(
         db.select(Event).where(Event.name == DEFAULT_EVENT_NAME)
     ).scalar_one_or_none()
@@ -731,7 +738,7 @@ def initialize_database():
     try:
         db.session.commit()
         return created
-    except IntegrityError:
+    except (IntegrityError, OperationalError, ProgrammingError):
         # Another setup process may have inserted the same starter records.
         db.session.rollback()
         return False

@@ -407,115 +407,27 @@ def transition_ticket(ticket, action):
 # ======================================================================
 # AUTOMATIC IDEMPOTENT DATABASE INITIALIZATION & SEEDING
 # ======================================================================
-DEFAULT_EVENT_NAME = "Hackathon 2026 Logistics"
-
-DEMO_QUEUES_CONFIG = [
-    ("Standard", "Standard (Omnivore) meal collection"),
-    ("Halal", "100% certified Halal meal collection"),
-    ("Vegetarian", "Vegetarian meal collection"),
-    ("Vegan", "Vegan plant-based meal collection"),
-    ("Gluten-Free", "Certified Gluten-Free meal collection"),
-]
-
-DEMO_SERVICES_CONFIG = [
-    {
-        "name": "Breakfast",
-        "start_time": time(8, 0),
-        "end_time": time(9, 30),
-        "location": "Hackathon Dining Hall - Station A",
-        "status": MealServiceStatus.CLOSED,
-        "windows": [
-            (time(8, 0), time(8, 15)),
-            (time(8, 15), time(8, 30)),
-            (time(8, 30), time(8, 45)),
-            (time(8, 45), time(9, 0)),
-            (time(9, 0), time(9, 15)),
-            (time(9, 15), time(9, 30)),
-        ],
-    },
-    {
-        "name": "Lunch",
-        "start_time": time(12, 0),
-        "end_time": time(14, 0),
-        "location": "Hackathon Dining Hall - Main Buffet",
-        "status": MealServiceStatus.OPEN,
-        "windows": [
-            (time(12, 0), time(12, 15)),
-            (time(12, 15), time(12, 30)),
-            (time(12, 30), time(12, 45)),
-            (time(12, 45), time(13, 0)),
-            (time(13, 0), time(13, 15)),
-            (time(13, 15), time(13, 30)),
-            (time(13, 30), time(13, 45)),
-            (time(13, 45), time(14, 0)),
-        ],
-    },
-    {
-        "name": "Dinner",
-        "start_time": time(18, 30),
-        "end_time": time(20, 30),
-        "location": "Hackathon Dining Hall - Main Buffet",
-        "status": MealServiceStatus.DRAFT,
-        "windows": [
-            (time(18, 30), time(18, 45)),
-            (time(18, 45), time(19, 0)),
-            (time(19, 0), time(19, 15)),
-            (time(19, 15), time(19, 30)),
-            (time(19, 30), time(19, 45)),
-            (time(19, 45), time(20, 0)),
-            (time(20, 0), time(20, 15)),
-            (time(20, 15), time(20, 30)),
-        ],
-    },
-]
-
-DEMO_OPTIONS_CONFIG = [
-    {
-        "name": "Standard (Omnivore)",
-        "queue_name": "Standard",
-        "cap": 150,
-        "description": "Herb-crusted roasted chicken with garlic mashed potatoes & roasted seasonal greens.",
-    },
-    {
-        "name": "Halal",
-        "queue_name": "Halal",
-        "cap": 60,
-        "description": "Certified Halal grilled chicken shawarma & saffron spiced rice with tahini.",
-    },
-    {
-        "name": "Vegetarian",
-        "queue_name": "Vegetarian",
-        "cap": 50,
-        "description": "Artisan paneer makhani with cumin basmati rice and warm naan.",
-    },
-    {
-        "name": "Vegan",
-        "queue_name": "Vegan",
-        "cap": 20,
-        "description": "Smoky chipotle roasted chickpea, avocado & quinoa power bowl.",
-    },
-    {
-        "name": "Gluten-Free",
-        "queue_name": "Gluten-Free",
-        "cap": 20,
-        "description": "Gluten-free pan-seared Atlantic salmon with wild rice & steamed asparagus.",
-    },
-]
+DEFAULT_EVENT_NAME = "MakeQ Demo Hackathon"
 
 
 def init_db_and_seed(flask_app):
     """Automatically and idempotently check core tables and seed default demo data."""
     with flask_app.app_context():
+        # 1. Safe idempotent table creation
         try:
             inspector = inspect(db.engine)
-            existing_tables = set(inspector.get_table_names())
-
-            # Automatically create tables if core tables do not exist
+            existing_tables = inspector.get_table_names()
             if "events" not in existing_tables:
                 db.create_all()
-                existing_tables = set(inspect(db.engine).get_table_names())
+        except (OperationalError, ProgrammingError) as exc:
+            flask_app.logger.warning(
+                f"Database schema initialization caught expected exception: {exc}"
+            )
+        except Exception as exc:
+            flask_app.logger.warning(f"Database schema check warning: {exc}")
 
-            # If inside testing environment with pre-existing fixture event, do not add demo data
+        # 2. Safe idempotent seeding: only call initialize_database() if Event.query.first() is None
+        try:
             is_testing = (
                 flask_app.config.get("TESTING")
                 or os.getenv("TESTING", "").lower() in {"1", "true", "yes"}
@@ -523,136 +435,13 @@ def init_db_and_seed(flask_app):
                 or "PYTEST_CURRENT_TEST" in os.environ
             )
             if is_testing:
-                has_event = db.session.execute(db.select(Event.id).limit(1)).scalar_one_or_none()
-                if has_event:
-                    return
+                return
 
-            # Check or create default event
-            event = db.session.execute(
-                db.select(Event).where(Event.name == DEFAULT_EVENT_NAME)
-            ).scalar_one_or_none()
-
-            if event is None:
-                # Also accept existing active event if present
-                event = db.session.execute(
-                    db.select(Event).where(Event.active.is_(True)).order_by(Event.id).limit(1)
-                ).scalar_one_or_none()
-
-            if event is None:
-                event = Event(name=DEFAULT_EVENT_NAME, active=True)
-                db.session.add(event)
-                db.session.flush()
-
-            # Ensure all dietary queues exist
-            existing_queues = {
-                q.name: q
-                for q in db.session.execute(
-                    db.select(Queue).where(Queue.event_id == event.id)
-                ).scalars().all()
-            }
-            for q_name, q_desc in DEMO_QUEUES_CONFIG:
-                if q_name not in existing_queues:
-                    queue = Queue(
-                        event_id=event.id,
-                        name=q_name,
-                        description=q_desc,
-                        active=True,
-                        paused=False,
-                    )
-                    db.session.add(queue)
-                    db.session.flush()
-                    existing_queues[q_name] = queue
-
-            # Ensure meal services, options, and pickup windows exist
-            today = utc_now().date()
-            for s_cfg in DEMO_SERVICES_CONFIG:
-                meal = db.session.execute(
-                    db.select(MealService).where(
-                        MealService.event_id == event.id,
-                        MealService.name == s_cfg["name"],
-                    )
-                ).scalar_one_or_none()
-
-                if meal is None:
-                    meal = MealService(
-                        event_id=event.id,
-                        name=s_cfg["name"],
-                        service_date=today,
-                        start_time=s_cfg["start_time"],
-                        end_time=s_cfg["end_time"],
-                        location=s_cfg["location"],
-                        status=s_cfg["status"],
-                    )
-                    db.session.add(meal)
-                    db.session.flush()
-
-                # Ensure options exist for this meal
-                existing_options = {
-                    opt.name: opt
-                    for opt in db.session.execute(
-                        db.select(MealOption).where(MealOption.meal_service_id == meal.id)
-                    ).scalars().all()
-                }
-
-                for opt_cfg in DEMO_OPTIONS_CONFIG:
-                    if opt_cfg["name"] not in existing_options:
-                        target_queue = existing_queues.get(opt_cfg["queue_name"])
-                        option = MealOption(
-                            meal_service_id=meal.id,
-                            queue_id=target_queue.id if target_queue else None,
-                            name=opt_cfg["name"],
-                            description=opt_cfg["description"],
-                            planned_quantity=opt_cfg["cap"],
-                            received_quantity=opt_cfg["cap"],
-                            available_quantity=opt_cfg["cap"],
-                            active=True,
-                        )
-                        db.session.add(option)
-                        db.session.flush()
-                        db.session.add(
-                            InventoryMovement(
-                                meal_option_id=option.id,
-                                movement_type=InventoryMovementType.RECEIVED,
-                                quantity=opt_cfg["cap"],
-                                reason="Initial inventory allotment",
-                            )
-                        )
-                        existing_options[opt_cfg["name"]] = option
-
-                # Ensure staggered 15-minute pickup windows exist
-                window_count = db.session.execute(
-                    db.select(db.func.count(PickupWindow.id)).where(
-                        PickupWindow.meal_service_id == meal.id
-                    )
-                ).scalar() or 0
-
-                if window_count == 0:
-                    for start_w, end_w in s_cfg["windows"]:
-                        db.session.add(
-                            PickupWindow(
-                                meal_service_id=meal.id,
-                                start_time=start_w,
-                                end_time=end_w,
-                                capacity=40,
-                                active=True,
-                            )
-                        )
-
-            # Ensure welcome announcement exists
-            announcement_count = db.session.execute(
-                db.select(db.func.count(Announcement.id)).where(
-                    Announcement.event_id == event.id
-                )
-            ).scalar() or 0
-            if announcement_count == 0:
-                db.session.add(
-                    Announcement(
-                        event_id=event.id,
-                        message="🎉 Welcome to Hackathon 2026! Meal pickup windows are now open. Save your digital claim code.",
-                    )
-                )
-
-            db.session.commit()
+            if Event.query.first() is None:
+                initialize_database()
+        except (OperationalError, ProgrammingError) as exc:
+            db.session.rollback()
+            flask_app.logger.warning(f"Database seeding skipped due to db collision: {exc}")
         except Exception as exc:
             db.session.rollback()
             flask_app.logger.warning(f"Database auto-initialization skipped or failed: {exc}")

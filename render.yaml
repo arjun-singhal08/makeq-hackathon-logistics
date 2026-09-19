@@ -16,3 +16,4 @@ services:
         value: hackathon2026
       - key: MAKEQ_SECRET_KEY
         generateValue: true
+
