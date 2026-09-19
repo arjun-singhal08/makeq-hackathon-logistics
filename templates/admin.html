@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ event_name }} · Organizer Deck · MakeQ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0F172A;
+      --surface: #1E293B;
+      --surface-hover: #243248;
+      --border: #334155;
+      --accent: #38BDF8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --emerald: #22C55E;
+      --emerald-glow: rgba(34, 197, 94, 0.25);
+      --amber: #F59E0B;
+      --rose: #EF4444;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding-bottom: 5rem;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    /* Top Nav */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1.25rem;
+      background: rgba(30, 41, 59, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 2rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #38BDF8, #0284C7);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: #0F172A;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-title span { color: var(--accent); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+    }
+    .btn-secondary {
+      background: #334155;
+      color: #F8FAFC;
+      border-color: #475569;
+    }
+    .btn-secondary:hover { background: #475569; }
+    .btn-primary {
+      background: #38BDF8;
+      color: #0F172A;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .btn-primary:hover { background: #7DD3FC; }
+    .btn-emerald {
+      background: #22C55E;
+      color: #0F172A;
+      box-shadow: 0 0 12px var(--emerald-glow);
+    }
+    .btn-emerald:hover { background: #4ADE80; }
+    .btn-amber {
+      background: #F59E0B;
+      color: #0F172A;
+    }
+    .btn-amber:hover { background: #FBBF24; }
+    .btn-rose {
+      background: #EF4444;
+      color: #F8FAFC;
+    }
+    .btn-rose:hover { background: #F87171; }
+    .btn-sm {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+    }
+
+    /* Flash Alerts */
+    .alerts { margin-bottom: 1.5rem; }
+    .alert {
+      padding: 0.875rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.925rem;
+      margin-bottom: 0.75rem;
+      border: 1px solid;
+    }
+    .alert-success { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.3); color: #4ADE80; }
+    .alert-danger { background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.3); color: #F87171; }
+    .alert-warning { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #FBBF24; }
+    .alert-info { background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.3); color: #7DD3FC; }
+
+    /* Quick Stats Bar */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+    .stat-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: #F8FAFC;
+    }
+
+    /* Leftovers Broadcast Action Card */
+    .broadcast-card {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15));
+      border: 1.5px solid var(--amber);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .broadcast-info h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #FBBF24;
+      margin-bottom: 0.25rem;
+    }
+    .broadcast-info p {
+      font-size: 0.875rem;
+      color: #CBD5E1;
+    }
+
+    /* Depletion Progress Bars */
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .inventory-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .inv-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    .inv-name {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .inv-queue {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .inv-pct {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: #0F172A;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 0.65rem;
+      border: 1px solid #334155;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.4s ease;
+    }
+    .fill-emerald { background: #22C55E; box-shadow: 0 0 10px var(--emerald-glow); }
+    .fill-amber { background: #F59E0B; }
+    .fill-rose { background: #EF4444; }
+    .inv-details {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Queue Station Operators */
+    .queue-stations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .station-operator-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .station-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .station-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+    .active-ticket-deck {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1.5px solid var(--accent);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .active-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #38BDF8;
+      margin-bottom: 0.25rem;
+    }
+    .active-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .waiting-list {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+    .waiting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed #334155;
+      font-size: 0.825rem;
+    }
+
+    /* Login Modal Card (when not logged in) */
+    .login-container {
+      max-width: 440px;
+      margin: 4rem auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: #CBD5E1;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #F8FAFC;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .demo-creds {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.825rem;
+      color: #7DD3FC;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Navbar -->
+    <header class="navbar">
+      <a href="/admin" class="brand">
+        <div class="brand-logo">Q</div>
+        <div class="brand-title">Make<span>Q</span> Control Deck</div>
+      </a>
+      <div class="nav-actions">
+        <a href="/" class="btn btn-secondary">
+          Participant View
+        </a>
+        <a href="/display" class="btn btn-secondary" target="_blank">
+          📺 Stage Display ↗
+        </a>
+        {% if is_admin %}
+          <form action="/admin/logout" method="POST" style="display: inline;">
+            <button type="submit" class="btn btn-rose btn-sm">Lock Deck</button>
+          </form>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Flash Alerts -->
+    <div class="alerts">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category if category != 'danger' else 'danger' }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    {% if not is_admin %}
+      <!-- Organizer Login Form -->
+      <div class="login-container">
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center;">Organizer Sign In</h2>
+        <p style="color: var(--text-muted); font-size: 0.875rem; text-align: center; margin-bottom: 1.5rem;">
+          Authenticate to manage queues, call tickets, and broadcast alerts.
+        </p>
+
+        <div class="demo-creds">
+          <strong>Default Demo Credentials:</strong><br>
+          Username: <code>{{ admin_username }}</code><br>
+          Password: <code>{{ admin_password }}</code>
+        </div>
+
+        <form action="/admin/login" method="POST">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" class="form-control" value="{{ admin_username }}" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control" value="{{ admin_password }}" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem; margin-top: 0.5rem;">
+            Unlock Organizer Deck →
+          </button>
+        </form>
+      </div>
+    {% else %}
+      <!-- Authenticated Organizer Control Deck -->
+
+      <!-- Top Quick Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Waiting In Line</div>
+          <div class="stat-value" id="deck-waiting" style="color: #38BDF8;">{{ total_waiting }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Currently At Counters</div>
+          <div class="stat-value" style="color: #F59E0B;">{{ total_active }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Meals Served</div>
+          <div class="stat-value" style="color: #22C55E;">{{ total_served }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Meal Service</div>
+          <div class="stat-value" style="font-size: 1.25rem; color: #F8FAFC; text-transform: uppercase;">
+            {{ open_service.name if open_service else 'None' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Second-Round Leftovers Broadcast Action Button -->
+      <div class="broadcast-card">
+        <div class="broadcast-info">
+          <h3>📢 Second-Round Leftovers Broadcast</h3>
+          <p>Instantly alert all participants and venue stage displays that unclaimed meal boxes are open for second-round pickup!</p>
+        </div>
+        <form action="/admin/broadcast-leftovers" method="POST">
+          <button type="submit" class="btn btn-amber" style="padding: 0.75rem 1.5rem; font-size: 0.95rem; font-weight: 700;">
+            📢 Broadcast Leftovers Now
+          </button>
+        </form>
+      </div>
+
+      <!-- Meal Service Switcher -->
+      <div class="stat-card" style="margin-bottom: 2.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <strong style="font-size: 1.05rem;">Switch Active Meal Service:</strong>
+            <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.5rem;">
+              (Current Open: <strong>{{ open_service.name if open_service else 'None' }}</strong>)
+            </span>
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            {% for s in all_services %}
+              <form action="/admin/meal-service/{{ s.id }}/activate" method="POST">
+                <button type="submit" class="btn btn-sm {% if s.status.value == 'OPEN' %}btn-emerald{% else %}btn-secondary{% endif %}">
+                  {{ s.name }} ({{ s.status.value }})
+                </button>
+              </form>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Inventory Depletion Bars -->
+      <h2 class="section-title">📊 Live Meal Inventory & Depletion Status</h2>
+      <div class="inventory-grid">
+        {% for item in inventory_summary %}
+          <div class="inventory-card">
+            <div class="inv-top">
+              <div>
+                <div class="inv-name">{{ item.name }}</div>
+                <div class="inv-queue">Queue: {{ item.queue_name }}</div>
+              </div>
+              <div class="inv-pct" style="color: {% if item.status_color == 'emerald' %}#22C55E{% elif item.status_color == 'amber' %}#F59E0B{% else %}#EF4444{% endif %};">
+                {{ item.pct_remaining }}%
+              </div>
+            </div>
+
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill fill-{{ item.status_color }}" style="width: {{ item.pct_remaining }}%;"></div>
+            </div>
+
+            <div class="inv-details">
+              <span><strong>{{ item.available }}</strong> available</span>
+              <span>{{ item.reserved }} reserved</span>
+              <span>Cap: {{ item.initial }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Queue Station Operators Deck -->
+      <h2 class="section-title">⚡ Queue Operator Stations</h2>
+      <div class="queue-stations-grid">
+        {% for queue_name, queue in queues.items() %}
+          <div class="station-operator-card">
+            <div class="station-top">
+              <div class="station-title">
+                {% if 'Standard' in queue_name %}🥩
+                {% elif 'Halal' in queue_name %}🌙
+                {% elif 'Vegetarian' in queue_name %}🥗
+                {% elif 'Vegan' in queue_name %}🌱
+                {% elif 'Gluten' in queue_name %}🌾
+                {% else %}🍽️{% endif %}
+                {{ queue_name }}
+              </div>
+              <form action="/admin/update-queue" method="POST">
+                <input type="hidden" name="queue_name" value="{{ queue_name }}">
+                {% if queue.paused %}
+                  <input type="hidden" name="action" value="resume">
+                  <button type="submit" class="btn btn-emerald btn-sm">▶ Resume</button>
+                {% else %}
+                  <input type="hidden" name="action" value="pause">
+                  <button type="submit" class="btn btn-secondary btn-sm">⏸ Pause</button>
+                {% endif %}
+              </form>
+            </div>
+
+            <!-- Active Serving Ticket -->
+            {% if queue.now_serving %}
+              <div class="active-ticket-deck">
+                <div style="font-size: 0.725rem; text-transform: uppercase; font-weight: 700; color: #94A3B8;">Serving At Counter</div>
+                <div class="active-id">{{ queue.now_serving.id }}</div>
+                <div style="font-size: 0.85rem; color: #CBD5E1;">
+                  {{ queue.now_serving.label }} ({{ queue.now_serving.quantity }} meal)
+                </div>
+                <div class="active-actions">
+                  <form action="/admin/ticket/{{ queue.now_serving.id }}/complete" method="POST">
+                    <button type="submit" class="btn btn-emerald btn-sm" style="width: 100%;">✓ Complete</button>
+                  </form>
+                  <form action="/admin/ticket/{{ queue.now_serving.id }}/no_show" method="POST">
+                    <button type="submit" class="btn btn-amber btn-sm" style="width: 100%;">No-Show</button>
+                  </form>
+                  <form action="/admin/ticket/{{ queue.now_serving.id }}/requeue" method="POST">
+                    <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%;">Requeue</button>
+                  </form>
+                  <form action="/admin/ticket/{{ queue.now_serving.id }}/cancel" method="POST">
+                    <button type="submit" class="btn btn-rose btn-sm" style="width: 100%;">Cancel</button>
+                  </form>
+                </div>
+              </div>
+            {% else %}
+              <div style="background: rgba(15, 23, 42, 0.4); border: 1px dashed #334155; border-radius: 8px; padding: 1.25rem; text-align: center; margin-bottom: 1.25rem;">
+                <span style="color: #64748B; font-size: 0.875rem;">Counter Ready</span>
+              </div>
+            {% endif %}
+
+            <!-- Call Next Action Button -->
+            <form action="/admin/call-next" method="POST" style="margin-bottom: 1.25rem;">
+              <input type="hidden" name="queue_name" value="{{ queue_name }}">
+              <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.95rem; font-weight: 700;" {% if queue.now_serving or queue.paused %}disabled{% endif %}>
+                📢 Call Next Ticket ({{ queue.waiting|length }})
+              </button>
+            </form>
+
+            <!-- Waiting Queue -->
+            <div class="waiting-list">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; margin-bottom: 0.5rem;">
+                Waiting Tickets ({{ queue.waiting|length }})
+              </div>
+              {% if queue.waiting %}
+                {% for ticket in queue.waiting[:5] %}
+                  <div class="waiting-item">
+                    <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #38BDF8;">{{ ticket.id }}</span>
+                    <span>{{ ticket.label }}</span>
+                    <span style="color: #64748B;">{{ ticket.joined_at }}</span>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div style="font-size: 0.8rem; color: #64748B; font-style: italic;">No waiting tickets</div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Announcements Broadcast Manager -->
+      <h2 class="section-title">📢 Event Announcements Manager</h2>
+      <div class="stat-card" style="margin-bottom: 2rem;">
+        <form action="/admin/announcement" method="POST" style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
+          <input type="text" name="message" class="form-control" placeholder="Enter announcement to display on stage projector & participant screens..." required maxlength="240">
+          <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Broadcast</button>
+        </form>
+
+        {% if announcements %}
+          <div>
+            {% for a in announcements %}
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #334155;">
+                <div>
+                  <strong>{{ a.posted_at }}:</strong> {{ a.message }}
+                </div>
+                <form action="/admin/announcement/{{ a.id }}/delete" method="POST" style="display: inline;">
+                  <button type="submit" class="btn btn-secondary btn-sm">Delete</button>
+                </form>
+              </div>
+            {% endfor %}
+          </div>
+          <form action="/admin/announcement/clear" method="POST" style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-secondary btn-sm">Clear All Announcements</button>
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

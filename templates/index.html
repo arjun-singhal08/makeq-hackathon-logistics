@@ -1,527 +1,950 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" class="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MakeQ | Hackathon food pickup</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ event_name }} · MakeQ Smart Meal Queue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    :root { --ink:#17211b; --muted:#69766d; --cream:#f7f4ed; --mint:#dceee5; --orange:#eb6a3d; --line:#dfe6df; }
-    body { background:linear-gradient(180deg, #fbfaf6 0, var(--cream) 26rem); color:var(--ink); font-family:Georgia, 'Times New Roman', serif; }
-    .sans { font-family:Arial, Helvetica, sans-serif; }
-    .brand-mark { color:var(--orange); letter-spacing:.12em; font-size:.76rem; font-weight:700; }
-    .hero { border-bottom:1px solid var(--line); padding:2.8rem 0 2.3rem; }
-    .hero h1 { font-size:clamp(2.6rem, 6vw, 5rem); line-height:.95; max-width:700px; }
-    .hero p { color:var(--muted); font-family:Arial, Helvetica, sans-serif; max-width:540px; }
-    .panel { background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 10px 32px #17211b0a; }
-    .section-label { color:var(--orange); text-transform:uppercase; letter-spacing:.12em; font:700 .7rem Arial, sans-serif; }
-    .form-control, .form-select { border-color:#cdd8cf; border-radius:4px; padding:.72rem .8rem; }
-    .form-control:focus, .form-select:focus { border-color:var(--orange); box-shadow:0 0 0 .2rem #eb6a3d22; }
-    .btn-primary { --bs-btn-bg:var(--ink); --bs-btn-border-color:var(--ink); --bs-btn-hover-bg:var(--orange); --bs-btn-hover-border-color:var(--orange); }
-    .btn-outline-secondary { --bs-btn-border-color:#bac6bd; --bs-btn-color:var(--ink); }
-    .queue-card { border-top:4px solid var(--orange); }
-    .queue-card.halal { border-top-color:#479b75; }
-    .queue-card.vegetarian { border-top-color:#d1a33d; }
-    .queue-card.vegan { border-top-color:#4c8ea8; }
-    .ticket { background:#f7faf7; border:1px solid var(--line); border-radius:4px; }
-    .ticket-id { font:bold 1.12rem Arial, sans-serif; letter-spacing:.04em; overflow-wrap:anywhere; }
-    .now { background:var(--mint); border-radius:4px; }
-    .now-number { font:bold clamp(1.35rem, 2.5vw, 2rem) Arial, sans-serif; overflow-wrap:anywhere; }
-    .badge-soft { background:#edf2ed; color:var(--muted); font:600 .67rem Arial, sans-serif; }
-    .slot-badge { white-space:normal; text-align:left; }
-    .announcement { background:var(--ink); color:#fff; border-radius:4px; }
-    .announcement-item + .announcement-item { border-top:1px solid #ffffff33; }
-    .meal-summary { background:var(--mint); border:1px solid #c9e2d5; border-radius:10px; }
-    .choice-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:.65rem; }
-    .choice-card { display:block; height:100%; padding:.85rem; border:1px solid #cdd8cf; border-radius:8px; background:#fff; cursor:pointer; transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
-    .choice-card:hover { border-color:#8da597; transform:translateY(-1px); }
-    .btn-check:checked + .choice-card { border-color:var(--orange); box-shadow:0 0 0 3px #eb6a3d20; background:#fffaf7; }
-    .btn-check:focus-visible + .choice-card { outline:3px solid #eb6a3d55; outline-offset:2px; }
-    .btn-check:disabled + .choice-card { cursor:not-allowed; opacity:.55; background:#f2f3f0; transform:none; }
-    .choice-title { display:flex; justify-content:space-between; gap:.5rem; font-weight:700; }
-    .choice-description, .choice-meta { color:var(--muted); font-size:.78rem; line-height:1.35; }
-    .reservation-receipt { background:#f2fbf5; border:1px solid #b9ddc6; border-left:6px solid #2f8a5b; border-radius:12px; box-shadow:0 12px 34px #17211b0d; }
-    .receipt-id { font:bold clamp(1.65rem, 4vw, 2.5rem) Arial, sans-serif; letter-spacing:.035em; overflow-wrap:anywhere; }
-    .receipt-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:.8rem 1.2rem; margin:0; }
-    .receipt-grid dt { color:var(--muted); font:700 .68rem Arial, sans-serif; letter-spacing:.08em; text-transform:uppercase; }
-    .receipt-grid dd { margin:0; font:600 .95rem Arial, sans-serif; }
-    .ticket-food-details { margin-top:.5rem; color:var(--muted); font:600 .76rem/1.35 Arial, sans-serif; }
-    .ticket-food-details strong { color:var(--ink); display:block; }
-    @media (max-width:575.98px) {
-      nav { flex-wrap:wrap; gap:.75rem; }
-      .nav-actions { width:100%; flex-wrap:wrap; }
-      .receipt-grid { grid-template-columns:1fr; }
+    :root {
+      --bg: #0F172A;
+      --card: #1E293B;
+      --card-hover: #243248;
+      --border: #334155;
+      --border-focus: #38BDF8;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent: #38BDF8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --emerald: #22C55E;
+      --emerald-glow: rgba(34, 197, 94, 0.2);
+      --amber: #F59E0B;
+      --rose: #EF4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    /* Top Navigation */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 2rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #38BDF8, #0284C7);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #0F172A;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-title span { color: var(--accent); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+    }
+    .btn-secondary {
+      background: #334155;
+      color: #F8FAFC;
+      border-color: #475569;
+    }
+    .btn-secondary:hover {
+      background: #475569;
+      border-color: #64748B;
+    }
+    .btn-primary {
+      background: #38BDF8;
+      color: #0F172A;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .btn-primary:hover {
+      background: #7DD3FC;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Flash Alerts */
+    .alerts { margin-bottom: 1.5rem; }
+    .alert {
+      padding: 0.875rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.925rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border: 1px solid;
+    }
+    .alert-success {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.3);
+      color: #4ADE80;
+    }
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #F87171;
+    }
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #FBBF24;
+    }
+    .alert-info {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.3);
+      color: #7DD3FC;
+    }
+
+    /* Live Hero Banner */
+    .hero {
+      background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #38BDF8, #22C55E, #38BDF8);
+    }
+    .hero-info h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.35rem;
+    }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-open {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ADE80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #22C55E;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22C55E;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Announcements Marquee/Card */
+    .announcements-box {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.875rem 1.25rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+    }
+    .announcement-icon {
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    .announcement-text {
+      font-size: 0.925rem;
+      color: #CBD5E1;
+    }
+
+    /* Main Grid Layout */
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    @media (min-width: 992px) {
+      .grid-layout {
+        grid-template-columns: 7fr 5fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+    }
+    .card-header {
+      margin-bottom: 1.5rem;
+    }
+    .card-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin-bottom: 0.25rem;
+    }
+    .card-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Reservation Ticket Pass */
+    .ticket-pass {
+      background: linear-gradient(145deg, #1E293B, #0F172A);
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 25px var(--accent-glow);
+      position: relative;
+    }
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 1.25rem;
+    }
+    .ticket-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    .ticket-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #F8FAFC;
+      letter-spacing: -0.02em;
+    }
+    .claim-code-box {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #475569;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .claim-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      word-break: break-all;
+    }
+    .copy-btn {
+      background: #334155;
+      border: none;
+      color: #F8FAFC;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { background: #475569; }
+    .ticket-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+    }
+    .detail-item .label {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-bottom: 0.2rem;
+    }
+    .detail-item .value {
+      font-weight: 600;
+      color: #F8FAFC;
+    }
+
+    /* Dietary Option Cards */
+    .dietary-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .dietary-card {
+      display: block;
+      position: relative;
+      cursor: pointer;
+    }
+    .dietary-card input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+    }
+    .dietary-card-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+    .dietary-card input[type="radio"]:checked + .dietary-card-inner {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    .dietary-card-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .dietary-icon {
+      font-size: 1.75rem;
+      flex-shrink: 0;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #334155;
+      border-radius: 10px;
+    }
+    .dietary-info .name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #F8FAFC;
+      margin-bottom: 0.15rem;
+    }
+    .dietary-info .desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      max-width: 320px;
+    }
+    .dietary-cap {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      background: #334155;
+      color: #94A3B8;
+      white-space: nowrap;
+    }
+    .dietary-card input[type="radio"]:checked + .dietary-card-inner .dietary-cap {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ADE80;
+    }
+
+    /* Pickup Window Slot Selector */
+    .window-selector {
+      margin-bottom: 1.5rem;
+    }
+    .window-selector label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: #CBD5E1;
+    }
+    .window-pills {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.65rem;
+    }
+    .window-pill {
+      position: relative;
+      cursor: pointer;
+    }
+    .window-pill input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+    }
+    .window-pill-inner {
+      padding: 0.65rem 0.5rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #94A3B8;
+      transition: all 0.2s ease;
+    }
+    .window-pill input[type="radio"]:checked + .window-pill-inner {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      color: #F8FAFC;
+    }
+
+    /* Form Inputs */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: #CBD5E1;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #F8FAFC;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8.825L1.175 4 2.238 2.938 6 6.7 9.763 2.938 10.825 4z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+    }
+
+    /* Live Queues Panel */
+    .queue-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      transition: transform 0.2s ease;
+    }
+    .queue-card:hover {
+      border-color: #475569;
+    }
+    .queue-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .queue-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .queue-serving-box {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .serving-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .serving-ticket {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #38BDF8;
+    }
+    .queue-next {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      overflow-x: auto;
+      padding-top: 0.25rem;
+    }
+    .next-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      background: #334155;
+      color: #CBD5E1;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
     }
   </style>
 </head>
 <body>
-  <nav class="container py-4 d-flex justify-content-between align-items-center sans">
-    <div class="brand-mark">MAKEQ / {{ event_name|upper }}</div>
-    <div class="nav-actions d-flex gap-2 align-items-center">
-      {% if is_admin %}
-        <span class="badge text-bg-success">ADMIN</span>
-        <form method="post" action="{{ url_for('admin_logout') }}"><button class="btn btn-sm btn-outline-secondary" type="submit">Lock controls</button></form>
-      {% else %}
-        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#loginModal">Admin login</button>
-      {% endif %}
-      <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('display') }}" target="_blank">Open display &rarr;</a>
-    </div>
-  </nav>
+  <div class="container">
+    <!-- Navbar -->
+    <header class="navbar">
+      <a href="/" class="brand">
+        <div class="brand-logo">Q</div>
+        <div class="brand-title">Make<span>Q</span></div>
+      </a>
+      <div class="nav-actions">
+        <a href="/display" class="btn btn-secondary" target="_blank">
+          📺 Live Stage Display ↗
+        </a>
+        <a href="/admin" class="btn btn-primary">
+          {% if is_admin %}⚡ Admin Deck (Unlocked){% else %}⚡ Organizer Deck{% endif %}
+        </a>
+      </div>
+    </header>
 
-  <header class="hero">
-    <div class="container">
-      <div class="section-label mb-3">Hackathon food service</div>
-      <h1 class="mb-3">Food pickup, without the guesswork.</h1>
-      <p class="fs-5 mb-0">Reserve the right meal, choose a pickup window, and follow the live line with MakeQ.</p>
+    <!-- Flashed Messages -->
+    <div class="alerts">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category if category != 'danger' else 'danger' }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
     </div>
-  </header>
 
-  <main class="container py-5">
-    {% if announcements %}
-      <div class="announcement p-3 mb-4 sans" role="status">
-        <strong>Live announcements</strong>
-        {% for announcement in announcements %}
-          <div class="announcement-item mt-2 pt-2 d-flex justify-content-between gap-3">
-            <span>{{ announcement.message }} <small class="opacity-75">{{ announcement.posted_at }}</small></span>
-            {% if is_admin %}
-              <form method="post" action="{{ url_for('delete_announcement', announcement_id=announcement.id) }}">
-                <button class="btn btn-sm btn-outline-light" type="submit">Delete</button>
-              </form>
-            {% endif %}
+    <!-- Active Service Hero -->
+    <section class="hero">
+      <div class="hero-info">
+        <div class="hero-meta" style="margin-bottom: 0.5rem;">
+          <span class="hero-badge badge-open">
+            <span class="pulse-dot"></span> Active Meal Service
+          </span>
+          <span>📍 {{ meal_service.location if meal_service else 'Hackathon Dining Hall' }}</span>
+        </div>
+        <h1>{{ meal_service.name if meal_service else 'Lunch Service' }}</h1>
+        <p class="hero-meta">
+          <span>⏰ Service Hours: {{ meal_service.start_time.strftime('%H:%M') if meal_service else '12:00' }} – {{ meal_service.end_time.strftime('%H:%M') if meal_service else '14:00' }}</span>
+          <span>📅 {{ meal_service.service_date.strftime('%A, %d %b %Y') if meal_service else 'Today' }}</span>
+        </p>
+      </div>
+      <div>
+        <a href="#reservation-section" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+          Reserve Meal Pass ↓
+        </a>
+      </div>
+    </section>
+
+    <!-- Announcements Ticker -->
+    <div class="announcements-box" id="announcements-container">
+      <span class="announcement-icon">📢</span>
+      <div class="announcement-text" id="live-announcement-text">
+        {% if announcements %}
+          <strong>{{ announcements[0].posted_at }}:</strong> {{ announcements[0].message }}
+        {% else %}
+          Welcome to {{ event_name }}! Reserve your meal below. Keep your digital claim code handy at collection.
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Live Ticket Claim Card (if participant just reserved) -->
+    {% if reservation_receipt %}
+    <section class="ticket-pass" id="ticket-pass-receipt">
+      <div class="ticket-header">
+        <div>
+          <div class="ticket-tag">Confirmed Digital Meal Pass</div>
+          <div class="ticket-number">{{ reservation_receipt.public_id }}</div>
+        </div>
+        <span class="hero-badge badge-open" style="font-size: 0.85rem; padding: 0.35rem 0.85rem;">
+          Confirmed
+        </span>
+      </div>
+
+      <div class="claim-code-box">
+        <div>
+          <div style="font-size: 0.725rem; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Digital Claim Code</div>
+          <div class="claim-code" id="receipt-claim-token">{{ reservation_receipt.claim_token }}</div>
+        </div>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('{{ reservation_receipt.claim_token }}'); this.innerText='Copied!';">Copy</button>
+      </div>
+
+      <div class="ticket-details-grid">
+        <div class="detail-item">
+          <div class="label">Dietary Selection</div>
+          <div class="value">{{ reservation_receipt.option_name }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="label">Pickup Window</div>
+          <div class="value">{{ reservation_receipt.pickup_window }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="label">Queue / Counter</div>
+          <div class="value">{{ reservation_receipt.queue_name }} Counter</div>
+        </div>
+        <div class="detail-item">
+          <div class="label">Estimated Wait</div>
+          <div class="value" style="color: #38BDF8;">~{{ reservation_receipt.estimated_wait }} mins ({{ reservation_receipt.tickets_ahead }} ahead)</div>
+        </div>
+        <div class="detail-item">
+          <div class="label">Quantity</div>
+          <div class="value">{{ reservation_receipt.quantity }} meal(s)</div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- Team Preference Receipt (if team reserved) -->
+    {% if team_preference_receipt %}
+    <section class="card" style="border-color: #38BDF8;">
+      <h3 style="color: #38BDF8; margin-bottom: 0.5rem;">👥 Team Meal Reservation Confirmed</h3>
+      <p style="color: #94A3B8; margin-bottom: 1rem;">
+        Team <strong>{{ team_preference_receipt.team_name }}</strong> · Pickup Window: <strong>{{ team_preference_receipt.pickup_window }}</strong>
+      </p>
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        {% for option_name, count in team_preference_receipt.breakdown.items() %}
+          <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 8px;">
+            <strong>{{ option_name }}:</strong> {{ count }}
           </div>
         {% endfor %}
       </div>
+    </section>
     {% endif %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}<div class="alert alert-{{ category }} py-2 sans" role="alert">{{ message }}</div>{% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    {% if reservation_receipt %}
-      <section class="reservation-receipt p-4 p-md-5 mb-4 sans" role="status" aria-labelledby="reservation-confirmed-title">
-        <div class="row g-4 align-items-center">
-          <div class="col-lg-5">
-            <div class="section-label mb-2">Reservation confirmed</div>
-            <h2 class="h4 mb-2" id="reservation-confirmed-title">Save or screenshot your ticket</h2>
-            <div class="receipt-id">{{ reservation_receipt.public_id }}</div>
-            <p class="text-secondary small mb-0 mt-2">Watch the live queue below. Collect your food when this ticket is called.</p>
+    <!-- Main Content Layout -->
+    <div class="grid-layout">
+      <!-- Left Column: Reservation Form -->
+      <div>
+        <div class="card" id="reservation-section">
+          <div class="card-header">
+            <h2 class="card-title">Reserve Your Meal</h2>
+            <p class="card-subtitle">Choose your dietary option and preferred 15-minute pickup window.</p>
           </div>
-          <div class="col-lg-7">
-            <dl class="receipt-grid">
-              <div><dt>Meal</dt><dd>{{ reservation_receipt.meal_name }} &middot; {{ reservation_receipt.option_name }}</dd></div>
-              <div><dt>Quantity</dt><dd>{{ reservation_receipt.quantity }} meal{% if reservation_receipt.quantity != 1 %}s{% endif %}</dd></div>
-              <div><dt>Pickup</dt><dd>{{ reservation_receipt.service_date }} &middot; {{ reservation_receipt.pickup_window }}</dd></div>
-              <div><dt>Location</dt><dd>{{ reservation_receipt.location }}</dd></div>
-            </dl>
-            <a class="btn btn-sm btn-outline-secondary mt-3" href="#live-queues">View live queue &darr;</a>
-          </div>
-        </div>
-      </section>
-    {% endif %}
 
-    {% if team_preference_receipt %}
-      <section class="reservation-receipt p-4 p-md-5 mb-4 sans" role="status" aria-labelledby="team-preferences-title">
-        <div class="row g-4 align-items-center">
-          <div class="col-lg-5">
-            <div class="section-label mb-2">Team preferences saved</div>
-            <h2 class="h4 mb-2" id="team-preferences-title">{{ team_preference_receipt.team_name }}</h2>
-            <p class="text-secondary small mb-0">This records the team’s member-level choices. Food and pickup capacity are not allocated until the next MakeQ stage.</p>
-          </div>
-          <div class="col-lg-7">
-            <dl class="receipt-grid">
-              <div><dt>Meal</dt><dd>{{ team_preference_receipt.meal_name }}</dd></div>
-              <div><dt>Members</dt><dd>{{ team_preference_receipt.quantity }}</dd></div>
-              <div><dt>Planned pickup</dt><dd>{{ team_preference_receipt.service_date }} &middot; {{ team_preference_receipt.pickup_window }}</dd></div>
-              <div><dt>Location</dt><dd>{{ team_preference_receipt.location }}</dd></div>
-            </dl>
-            <div class="ticket mt-3 p-3"><div class="small text-uppercase text-secondary fw-bold mb-1">Food breakdown</div>{% for option_name, quantity in team_preference_receipt.breakdown.items() %}<div class="d-flex justify-content-between"><span>{{ option_name }}</span><strong>{{ quantity }}</strong></div>{% endfor %}</div>
-          </div>
-        </div>
-      </section>
-    {% endif %}
+          <form action="/register" method="POST">
+            {% if meal_service %}
+              <input type="hidden" name="meal_service_id" value="{{ meal_service.id }}">
+            {% endif %}
 
-    <div class="row g-4 align-items-start mb-5">
-      <section class="col-lg-5">
-        <div class="panel p-4 p-md-5">
-          <div class="section-label mb-2">New arrival</div>
-          <h2 class="h3 mb-4">Reserve your food</h2>
-          {% if meal_service %}
-          <form method="post" action="{{ url_for('register') }}" class="sans">
-            <input type="hidden" name="meal_service_id" value="{{ meal_service.id }}">
-            <div class="meal-summary p-3 mb-4">
-              <div class="d-flex justify-content-between gap-3 align-items-start">
-                <div><div class="small text-uppercase fw-bold text-secondary">Active meal service</div><div class="fs-5 fw-bold">{{ meal_service.name }}</div></div>
-                <span class="badge text-bg-success">{{ meal_service.status.value }}</span>
-              </div>
-              <div class="small text-secondary mt-2">{{ meal_service.service_date.strftime('%d %b %Y') }} &middot; {{ meal_service.start_time.strftime('%H:%M') }}&ndash;{{ meal_service.end_time.strftime('%H:%M') }} &middot; {{ meal_service.location }}</div>
-            </div>
-
-            <fieldset class="mb-4" id="individual-meal-section">
-              <legend class="form-label fw-semibold mb-1">Choose your meal</legend>
-              <p class="small text-secondary mb-2">Availability updates as reservations are made.</p>
-              <div class="choice-grid">
-                {% set option_selection = namespace(done=false) %}
-                {% for option in meal_options %}
-                  {% set option_sold_out = option.available_quantity <= 0 %}
-                  {% set option_selected = not option_sold_out and not option_selection.done %}
-                  {% if option_selected %}{% set option_selection.done = true %}{% endif %}
-                  <div>
-                    <input class="btn-check" type="radio" name="meal_option_id" id="meal-option-{{ option.id }}" value="{{ option.id }}" required {% if option_selected %}checked{% endif %} {% if option_sold_out %}disabled{% endif %}>
-                    <label class="choice-card" for="meal-option-{{ option.id }}">
-                      <span class="choice-title"><span>{{ option.name }}</span><span class="badge {% if option_sold_out %}text-bg-secondary{% else %}text-bg-light{% endif %}">{% if option_sold_out %}Sold out{% else %}{{ option.available_quantity }} left{% endif %}</span></span>
-                      {% if option.description %}<span class="choice-description d-block mt-1">{{ option.description }}</span>{% endif %}
-                    </label>
-                  </div>
-                {% else %}
-                  <p class="small text-secondary mb-0">No meal options are currently available.</p>
-                {% endfor %}
-              </div>
-            </fieldset>
-
-            <fieldset class="mb-4">
-              <legend class="form-label fw-semibold mb-1">Choose a pickup window</legend>
-              <p class="small text-secondary mb-2">Select when you expect to collect your food.</p>
-              <div class="choice-grid">
-                {% set window_selection = namespace(done=false) %}
-                {% for window in pickup_windows %}
-                  {% set window_remaining = window.capacity - window.reserved_quantity - window.collected_quantity %}
-                  {% set window_full = window_remaining <= 0 %}
-                  {% set window_selected = not window_full and not window_selection.done %}
-                  {% if window_selected %}{% set window_selection.done = true %}{% endif %}
-                  <div>
-                    <input class="btn-check" type="radio" name="pickup_window_id" id="pickup-window-{{ window.id }}" value="{{ window.id }}" required {% if window_selected %}checked{% endif %} {% if window_full %}disabled{% endif %}>
-                    <label class="choice-card" for="pickup-window-{{ window.id }}">
-                      <span class="choice-title"><span>{{ window.start_time.strftime('%H:%M') }}&ndash;{{ window.end_time.strftime('%H:%M') }}</span></span>
-                      <span class="choice-meta d-block mt-1">{% if window_full %}Window full{% else %}{{ window_remaining }} of {{ window.capacity }} spaces left{% endif %}</span>
-                    </label>
-                  </div>
-                {% else %}
-                  <p class="small text-secondary mb-0">No pickup windows are currently available.</p>
-                {% endfor %}
-              </div>
-            </fieldset>
-
+            <!-- Registered Identity Selection (when event requires registered identity) -->
             {% if registered_identity_required %}
-              <fieldset class="mb-3">
-                <legend class="form-label fw-semibold mb-1">Reservation identity</legend>
-                <p class="small text-secondary mb-2">Choose a registered participant or team. Names cannot be entered manually for this event.</p>
-                <div class="choice-grid">
+              <div class="form-group">
+                <label>Registered Identity</label>
+                <div style="display: grid; gap: 0.5rem; margin-bottom: 1.25rem;">
                   {% for participant in registered_participants %}
-                    <div>
-                      <input class="btn-check" type="radio" name="registered_identity_id" id="participant-{{ participant.id }}" value="participant:{{ participant.id }}" required>
-                      <label class="choice-card" for="participant-{{ participant.id }}">
-                        <span class="choice-title"><span>{{ participant.name }}</span><span class="badge text-bg-light">Participant</span></span>
-                        {% if participant.organizer_identifier %}<span class="choice-meta d-block mt-1">{{ participant.organizer_identifier }}</span>{% endif %}
-                      </label>
-                    </div>
+                    <label class="dietary-card">
+                      <input type="radio" name="registered_identity_id" id="participant-{{ participant.id }}" value="participant:{{ participant.id }}" required>
+                      <div class="dietary-card-inner" style="padding: 0.65rem 1rem;">
+                        <span>👤 {{ participant.name }}</span>
+                        <span style="font-size: 0.75rem; color: #94A3B8;">Individual</span>
+                      </div>
+                    </label>
                   {% endfor %}
                   {% for team in registered_teams %}
-                    <div>
-                      <input class="btn-check" type="radio" name="registered_identity_id" id="team-{{ team.id }}" value="team:{{ team.id }}" required>
-                      <label class="choice-card" for="team-{{ team.id }}">
-                        <span class="choice-title"><span>{{ team.name }}</span><span class="badge text-bg-light">Team</span></span>
-                        <span class="choice-meta d-block mt-1">Choose each active member’s meal preference.</span>
-                      </label>
+                    <label class="dietary-card">
+                      <input type="radio" name="registered_identity_id" id="team-{{ team.id }}" value="team:{{ team.id }}" required>
+                      <div class="dietary-card-inner" style="padding: 0.65rem 1rem;">
+                        <span>👥 {{ team.name }}</span>
+                        <span style="font-size: 0.75rem; color: #94A3B8;">Team</span>
+                      </div>
+                    </label>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Team Member Preferences Panels -->
+              {% for team in registered_teams %}
+                {% set active_members = team.members | selectattr('active') | list %}
+                <div class="team-preference-panel mb-3" data-team-id="{{ team.id }}" style="background: rgba(15, 23, 42, 0.7); border: 1.5px solid var(--accent); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                  <h4 style="color: var(--accent); font-size: 1rem; margin-bottom: 0.75rem;">👥 Team food preferences: {{ team.name }}</h4>
+                  {% for member in active_members %}
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                      <label style="font-size: 0.875rem; font-weight: 600;" for="member-option-{{ team.id }}-{{ member.id }}">{{ member.name }}</label>
+                      <select class="form-control team-member-option" id="member-option-{{ team.id }}-{{ member.id }}" name="member_option_{{ team.id }}_{{ member.id }}" data-team-id="{{ team.id }}">
+                        <option value="">Choose meal option</option>
+                        {% for option in meal_options %}
+                          <option value="{{ option.id }}" data-option-name="{{ option.name }}">{{ option.name }}</option>
+                        {% endfor %}
+                      </select>
                     </div>
                   {% endfor %}
                 </div>
-              </fieldset>
+              {% endfor %}
             {% else %}
-              <label class="form-label fw-semibold" for="participant_name">Participant or team name</label>
-              <input class="form-control mb-3" id="participant_name" name="participant_name" maxlength="120" placeholder="e.g. Team Alpha or Alex" required>
+              <!-- Participant / Group Name -->
+              <div class="form-group">
+                <label for="participant_name">Your Name or Handle</label>
+                <input type="text" id="participant_name" name="participant_name" class="form-control" placeholder="e.g. Alex Chen or Team Matrix" required>
+              </div>
+
+              <!-- Ticket Type Toggle -->
+              <div class="form-group">
+                <label>Reservation Type</label>
+                <div style="display: flex; gap: 1rem;">
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #F8FAFC;">
+                    <input type="radio" name="ticket_type" value="individual" checked> Individual
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #F8FAFC;">
+                    <input type="radio" name="ticket_type" value="team"> Team / Group
+                  </label>
+                </div>
+              </div>
             {% endif %}
 
-            {% if registered_identity_required %}
-              {% for team in registered_teams %}
-                {% set active_members = team.members | selectattr('active') | list %}
-                <section class="team-preference-panel d-none mb-4" data-team-id="{{ team.id }}" aria-live="polite">
-                  <div class="ticket p-3 p-md-4">
-                    <div class="section-label mb-2">Team food preferences</div>
-                    <h3 class="h5 mb-1">{{ team.name }}</h3>
-                    {% if active_members %}
-                      <p class="small text-secondary mb-3">Choose one meal option for every active registered member.</p>
-                      <div class="vstack gap-3">
-                        {% for member in active_members %}
-                          <div>
-                            <label class="form-label fw-semibold mb-1" for="member-option-{{ team.id }}-{{ member.id }}">{{ member.name }}</label>
-                            <select class="form-select team-member-option" id="member-option-{{ team.id }}-{{ member.id }}" name="member_option_{{ team.id }}_{{ member.id }}" data-team-id="{{ team.id }}" disabled required>
-                              <option value="">Choose meal preference</option>
-                              {% for option in meal_options %}<option value="{{ option.id }}" data-option-name="{{ option.name }}">{{ option.name }}</option>{% endfor %}
-                            </select>
-                          </div>
-                        {% endfor %}
+            <!-- Dietary Selection Cards with Visual Icons -->
+            <div class="form-group">
+              <label>Select Dietary Preference</label>
+              <div class="dietary-grid">
+                {% for option in meal_options %}
+                  <label class="dietary-card">
+                    <input type="radio" name="meal_option_id" value="{{ option.id }}" {% if loop.first %}checked{% endif %}>
+                    <div class="dietary-card-inner">
+                      <div class="dietary-card-left">
+                        <div class="dietary-icon">
+                          {% if 'Standard' in option.name or 'Omnivore' in option.name %}🥩
+                          {% elif 'Halal' in option.name %}🌙
+                          {% elif 'Vegetarian' in option.name %}🥗
+                          {% elif 'Vegan' in option.name %}🌱
+                          {% elif 'Gluten' in option.name %}🌾
+                          {% else %}🍽️{% endif %}
+                        </div>
+                        <div class="dietary-info">
+                          <div class="name">{{ option.name }}</div>
+                          <div class="desc">{{ option.description }}</div>
+                        </div>
                       </div>
-                      <div class="ticket p-3 mt-3 bg-white">
-                        <div class="small text-uppercase text-secondary fw-bold mb-1">Food breakdown</div>
-                        <div class="small text-secondary team-breakdown" data-team-id="{{ team.id }}">Choose member preferences to see the food breakdown.</div>
+                      <div class="dietary-cap">
+                        {{ option.available_quantity }} left
                       </div>
-                    {% else %}
-                      <p class="alert alert-warning py-2 small mb-0">This team has no active registered members. Add or reactivate members before collecting preferences.</p>
-                    {% endif %}
-                  </div>
-                </section>
-              {% endfor %}
-            {% endif %}
-
-            <div id="individual-quantity-section">
-              <label class="form-label fw-semibold" for="quantity">Meals to reserve</label>
-              <input class="form-control" id="quantity" name="quantity" type="number" min="1" max="1000" value="1" inputmode="numeric" aria-describedby="quantity-help" required>
-              <div class="form-text mb-3" id="quantity-help">Enter the exact number of meals this ticket should collect.</div>
+                    </div>
+                  </label>
+                {% endfor %}
+              </div>
             </div>
 
-            {% if not registered_identity_required %}
-              <fieldset class="mb-4">
-                <legend class="form-label fw-semibold">Who is this reservation for?</legend>
-                <div class="btn-group w-100" role="group">
-                  <input type="radio" class="btn-check" name="ticket_type" id="individual" value="individual" checked>
-                  <label class="btn btn-outline-secondary" for="individual">Individual</label>
-                  <input type="radio" class="btn-check" name="ticket_type" id="team" value="team">
-                  <label class="btn btn-outline-secondary" for="team">Team</label>
-                </div>
-              </fieldset>
-            {% endif %}
-            {% if not registration_available %}<div class="alert alert-warning py-2 small">This meal has no reservable option or pickup capacity right now.</div>{% endif %}
-            <button class="btn btn-primary w-100 py-2" type="submit" {% if not registration_available %}disabled{% endif %}>Confirm meal reservation</button>
+            <!-- Pickup Window Time-Slot Selector -->
+            <div class="window-selector">
+              <label>Select 15-Minute Pickup Window</label>
+              <div class="window-pills">
+                {% for window in pickup_windows %}
+                  <label class="window-pill">
+                    <input type="radio" name="pickup_window_id" value="{{ window.id }}" {% if loop.first %}checked{% endif %}>
+                    <div class="window-pill-inner">
+                      {{ window.start_time.strftime('%H:%M') }} – {{ window.end_time.strftime('%H:%M') }}
+                    </div>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Quantity -->
+            <div class="form-group" style="max-width: 150px;">
+              <label for="quantity">Quantity</label>
+              <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="10">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.875rem; font-size: 1rem; justify-content: center; margin-top: 1rem;">
+              Confirm Meal Reservation & Get Pass →
+            </button>
           </form>
-          {% else %}
-            <p class="text-secondary sans mb-0">No meal service is currently open for reservations.</p>
-          {% endif %}
         </div>
-      </section>
+      </div>
 
-      {% if is_admin %}
-        <section class="col-lg-7">
-          <div class="panel p-4 p-md-5">
-            <div class="section-label mb-2">Admin desk</div>
-            <h2 class="h3 mb-4">Control the line</h2>
-
-            <form method="post" action="{{ url_for('call_next') }}" class="row g-2 mb-4 sans">
-              <div class="col-5"><label class="visually-hidden" for="call-next-queue">Queue</label><select class="form-select" id="call-next-queue" name="queue_name">{% for option in queue_options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}</select></div>
-              <div class="col-7"><button class="btn btn-primary w-100 py-2 fw-semibold" type="submit">Call next</button></div>
-            </form>
-
-            <form method="post" action="{{ url_for('update_queue') }}" class="row g-2 mb-4 sans">
-              <div class="col-md-5"><label class="visually-hidden" for="admin-queue">Queue</label><select class="form-select" id="admin-queue" name="queue_name">{% for option in queue_options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}</select></div>
-              <div class="col-md-7 d-flex gap-2"><button class="btn btn-outline-secondary flex-grow-1" name="action" value="pause" type="submit">Pause queue</button><button class="btn btn-outline-secondary flex-grow-1" name="action" value="resume" type="submit">Resume queue</button></div>
-            </form>
-
-            <form method="post" action="{{ url_for('post_announcement') }}" class="d-flex gap-2 sans">
-              <label class="visually-hidden" for="announcement-message">Announcement</label>
-              <input class="form-control" id="announcement-message" name="message" maxlength="240" placeholder="Post a live announcement" required>
-              <button class="btn btn-primary" type="submit">Post</button>
-            </form>
-            <form method="post" action="{{ url_for('clear_announcements') }}" class="mt-2"><button class="btn btn-sm btn-outline-secondary sans" type="submit">Clear all announcements</button></form>
+      <!-- Right Column: Live Queues Status & Auto-Polling -->
+      <div>
+        <div class="card">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h2 class="card-title">Live Queue Stations</h2>
+              <p class="card-subtitle">Real-time status synced via auto-polling</p>
+            </div>
+            <span class="hero-badge badge-open" style="font-size: 0.75rem;">
+              <span class="pulse-dot"></span> Live (4s)
+            </span>
           </div>
-        </section>
-      {% else %}
-        <section class="col-lg-7"><div class="panel p-4 p-md-5 h-100"><div class="section-label mb-2">Service desk</div><h2 class="h3">Admin controls are locked.</h2><p class="text-secondary sans mb-0">Use Admin login to manage calls, queue flow, and announcements.</p></div></section>
-      {% endif %}
 
-      {% if is_admin %}
-        <section class="col-12">
-          <div class="panel p-4 p-md-5">
-            <div class="section-label mb-2">Hackathon roster</div>
-            <h2 class="h3 mb-2">Registered participants and teams</h2>
-            <p class="text-secondary sans small mb-4">Once this roster contains a participant or team, new food reservations must use a registered identity.</p>
-            <div class="row g-4 mb-4">
-              <div class="col-lg-5">
-                <form method="post" action="{{ url_for('add_team') }}" class="ticket p-3 sans">
-                  <h3 class="h6">Create team</h3>
-                  <label class="visually-hidden" for="team-name">Team name</label>
-                  <div class="d-flex gap-2"><input class="form-control" id="team-name" name="name" maxlength="120" placeholder="e.g. Byte Builders" required><button class="btn btn-primary text-nowrap" type="submit">Add team</button></div>
-                </form>
-              </div>
-              <div class="col-lg-7">
-                <form method="post" action="{{ url_for('add_participant') }}" class="ticket p-3 sans">
-                  <h3 class="h6">Register participant</h3>
-                  <div class="row g-2">
-                    <div class="col-md-4"><label class="visually-hidden" for="participant-registration-name">Participant name</label><input class="form-control" id="participant-registration-name" name="name" maxlength="120" placeholder="Participant name" required></div>
-                    <div class="col-md-3"><label class="visually-hidden" for="participant-identifier">Organizer identifier</label><input class="form-control" id="participant-identifier" name="organizer_identifier" maxlength="120" placeholder="ID (optional)"></div>
-                    <div class="col-md-3"><label class="visually-hidden" for="participant-team">Team</label><select class="form-select" id="participant-team" name="team_id"><option value="">No team yet</option>{% for team in all_teams %}<option value="{{ team.id }}" {% if not team.active %}disabled{% endif %}>{{ team.name }}{% if not team.active %} (inactive){% endif %}</option>{% endfor %}</select></div>
-                    <div class="col-md-2"><button class="btn btn-primary w-100" type="submit">Register</button></div>
+          <div id="live-queues-list">
+            {% for queue_name, queue in queues.items() %}
+              <div class="queue-card" data-queue="{{ queue_name }}">
+                <div class="queue-top">
+                  <div class="queue-name">
+                    {% if 'Standard' in queue_name %}🥩
+                    {% elif 'Halal' in queue_name %}🌙
+                    {% elif 'Vegetarian' in queue_name %}🥗
+                    {% elif 'Vegan' in queue_name %}🌱
+                    {% elif 'Gluten' in queue_name %}🌾
+                    {% else %}🍽️{% endif %}
+                    {{ queue_name }}
                   </div>
-                </form>
-              </div>
-            </div>
-
-            <div class="row g-4">
-              <div class="col-lg-7">
-                <h3 class="h5">Participants</h3>
-                {% if all_participants %}
-                  <div class="table-responsive sans"><table class="table table-sm align-middle mb-0"><thead><tr><th>Name</th><th>Organizer ID</th><th>Team</th><th>Status</th><th class="text-end">Actions</th></tr></thead><tbody>
-                    {% for participant in all_participants %}
-                      <tr>
-                        <td class="fw-semibold">{{ participant.name }}</td>
-                        <td class="text-secondary">{{ participant.organizer_identifier or '—' }}</td>
-                        <td>
-                          <form method="post" action="{{ url_for('update_participant_team', participant_id=participant.id) }}" class="d-flex gap-1">
-                            <select class="form-select form-select-sm" name="team_id" aria-label="Team for {{ participant.name }}" {% if not participant.active %}disabled{% endif %}><option value="">No team</option>{% for team in all_teams %}<option value="{{ team.id }}" {% if participant.team_id == team.id %}selected{% endif %} {% if not team.active %}disabled{% endif %}>{{ team.name }}{% if not team.active %} (inactive){% endif %}</option>{% endfor %}</select>
-                            {% if participant.active %}<button class="btn btn-sm btn-outline-secondary" type="submit">Save</button>{% endif %}
-                          </form>
-                        </td>
-                        <td><span class="badge {% if participant.active %}text-bg-success{% else %}text-bg-secondary{% endif %}">{{ 'Active' if participant.active else 'Inactive' }}</span></td>
-                        <td class="text-end"><form method="post" action="{{ url_for('update_participant_active', participant_id=participant.id) }}"><button class="btn btn-sm {% if participant.active %}btn-outline-danger{% else %}btn-outline-secondary{% endif %}" name="active" value="{{ 'false' if participant.active else 'true' }}" type="submit">{{ 'Deactivate' if participant.active else 'Activate' }}</button></form></td>
-                      </tr>
-                    {% endfor %}
-                  </tbody></table></div>
-                {% else %}<p class="text-secondary sans small mb-0">No participants registered yet.</p>{% endif %}
-              </div>
-              <div class="col-lg-5">
-                <h3 class="h5">Teams</h3>
-                {% if all_teams %}
-                  <div class="vstack gap-2 sans">
-                    {% for team in all_teams %}
-                      <div class="ticket p-3">
-                        <div class="d-flex justify-content-between gap-2 align-items-start"><div><strong>{{ team.name }}</strong><div class="small text-secondary mt-1">{% set members = team.members | sort(attribute='name') %}{% if members %}{{ members | map(attribute='name') | join(', ') }}{% else %}No members assigned{% endif %}</div></div><div class="text-end"><span class="badge {% if team.active %}text-bg-success{% else %}text-bg-secondary{% endif %}">{{ 'Active' if team.active else 'Inactive' }}</span><form method="post" action="{{ url_for('update_team_active', team_id=team.id) }}" class="mt-1"><button class="btn btn-sm {% if team.active %}btn-outline-danger{% else %}btn-outline-secondary{% endif %}" name="active" value="{{ 'false' if team.active else 'true' }}" type="submit">{{ 'Deactivate' if team.active else 'Activate' }}</button></form></div></div>
-                      </div>
-                    {% endfor %}
-                  </div>
-                {% else %}<p class="text-secondary sans small mb-0">No teams created yet.</p>{% endif %}
-              </div>
-            </div>
-          </div>
-        </section>
-      {% endif %}
-    </div>
-
-    <div class="d-flex justify-content-between align-items-end mb-3" id="live-queues">
-      <div><div class="section-label">Live view</div><h2 class="h3 mb-0">Food pickup queues</h2></div>
-      <span class="text-secondary sans small">{{ queues.values() | map(attribute='waiting') | map('length') | sum }} waiting</span>
-    </div>
-    <div class="row g-3">
-      {% for queue_name, queue in queues.items() %}
-        <div class="col-xl-3 col-md-6">
-          <article class="panel queue-card {{ queue_name|lower|replace(' ', '-') }} p-3 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-3"><h3 class="h5 mb-0">{{ queue_name }}</h3>{% if queue.paused %}<span class="badge badge-soft">PAUSED</span>{% endif %}</div>
-            <div class="now p-3 mb-3">
-              <div class="text-uppercase text-secondary sans small">Current ticket</div>
-              {% if queue.now_serving %}
-                <div class="now-number">{{ queue.now_serving.id }}</div>
-                {% if is_admin %}<div class="text-secondary sans small">{{ queue.now_serving.label }}</div>{% endif %}
-                <span class="badge badge-soft mt-2">{{ queue.now_serving.status|replace('_', ' ') }}</span>
-                {% if is_admin and queue.now_serving.meal_option %}
-                  <div class="ticket-food-details"><strong>{{ queue.now_serving.meal_option }} &middot; {{ queue.now_serving.quantity }} meal{% if queue.now_serving.quantity != 1 %}s{% endif %}</strong><span>{{ queue.now_serving.meal }} &middot; pickup {{ queue.now_serving.pickup_window }}</span></div>
-                {% endif %}
-                {% if is_admin %}
-                  <div class="d-flex flex-wrap gap-1 mt-3 sans">
-                    {% if queue.now_serving.status == 'CALLED' %}
-                      <form method="post" action="{{ url_for('update_ticket_status', public_id=queue.now_serving.id, action='start') }}"><button class="btn btn-sm btn-primary" type="submit">Start</button></form>
-                      <form method="post" action="{{ url_for('update_ticket_status', public_id=queue.now_serving.id, action='no-show') }}"><button class="btn btn-sm btn-outline-secondary" type="submit">No-show</button></form>
-                    {% endif %}
-                    <form method="post" action="{{ url_for('update_ticket_status', public_id=queue.now_serving.id, action='complete') }}"><button class="btn btn-sm btn-outline-secondary" type="submit">Complete</button></form>
-                    <form method="post" action="{{ url_for('update_ticket_status', public_id=queue.now_serving.id, action='requeue') }}"><button class="btn btn-sm btn-outline-secondary" type="submit">Requeue</button></form>
-                    <form method="post" action="{{ url_for('update_ticket_status', public_id=queue.now_serving.id, action='cancel') }}"><button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button></form>
-                  </div>
-                {% endif %}
-              {% else %}<div class="now-number">&mdash;</div>{% endif %}
-            </div>
-            {% if queue.waiting %}
-              {% for ticket in queue.waiting %}
-                <div class="ticket p-2 mb-2 d-flex justify-content-between align-items-center gap-2">
-                  <div><div class="ticket-id">{{ ticket.id }}</div>{% if is_admin %}<div class="text-secondary sans small">{{ ticket.label }}</div>{% endif %}<span class="badge badge-soft mt-1">{{ ticket.type }}</span>{% if is_admin and ticket.meal_option %}<div class="ticket-food-details"><strong>{{ ticket.meal_option }} &middot; {{ ticket.quantity }} meal{% if ticket.quantity != 1 %}s{% endif %}</strong><span>{{ ticket.meal }} &middot; pickup {{ ticket.pickup_window }}</span></div>{% endif %}</div>
-                  {% if is_admin %}<form method="post" action="{{ url_for('update_ticket_status', public_id=ticket.id, action='cancel') }}"><button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button></form>{% endif %}
+                  <span class="next-pill" id="badge-{{ queue_name }}-waiting">
+                    {{ queue.waiting|length }} waiting
+                  </span>
                 </div>
-              {% endfor %}
-            {% else %}<div class="text-secondary sans small py-2">No one waiting.</div>{% endif %}
-          </article>
-        </div>
-      {% endfor %}
-    </div>
 
-    {% if is_admin and recent_tickets %}
-      <section class="panel p-4 mt-4 sans">
-        <div class="section-label mb-2">Retained history</div>
-        <h2 class="h4 mb-3">Recent resolved tickets</h2>
-        <div class="row g-2">
-          {% for ticket in recent_tickets %}
-            <div class="col-md-6 col-lg-4">
-              <div class="ticket p-3 d-flex justify-content-between align-items-center gap-2 h-100">
-                <div><div class="ticket-id">{{ ticket.id }}</div><div class="small text-secondary">{{ ticket.queue_name }} &middot; {{ ticket.status|replace('_', ' ') }}</div>{% if ticket.meal_option %}<div class="ticket-food-details"><strong>{{ ticket.meal_option }} &middot; {{ ticket.quantity }} meal{% if ticket.quantity != 1 %}s{% endif %}</strong><span>{{ ticket.meal }} &middot; pickup {{ ticket.pickup_window }}</span></div>{% endif %}</div>
-                {% if ticket.can_requeue %}<form method="post" action="{{ url_for('update_ticket_status', public_id=ticket.id, action='requeue') }}"><button class="btn btn-sm btn-outline-secondary" type="submit">Requeue</button></form>{% endif %}
+                <div class="queue-serving-box">
+                  <div class="serving-label">Now Serving</div>
+                  <div class="serving-ticket" id="serving-{{ queue_name }}">
+                    {% if queue.now_serving %}
+                      {{ queue.now_serving.id }}
+                    {% else %}
+                      <span style="font-size: 0.9rem; color: #64748B; font-weight: 500;">Ready for next</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="queue-next">
+                  <span style="font-size: 0.725rem; text-transform: uppercase; font-weight: 700; color: #64748B;">Next:</span>
+                  <div id="next-{{ queue_name }}" style="display: inline-flex; gap: 0.35rem; overflow-x: auto;">
+                    {% if queue.waiting %}
+                      {% for ticket in queue.waiting[:4] %}
+                        <span class="next-pill">{{ ticket.id }}</span>
+                      {% endfor %}
+                    {% else %}
+                      <span style="font-size: 0.75rem; color: #64748B;">No tickets in line</span>
+                    {% endif %}
+                  </div>
+                </div>
               </div>
-            </div>
-          {% endfor %}
+            {% endfor %}
+          </div>
         </div>
-      </section>
-    {% endif %}
-  </main>
-
-  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog"><div class="modal-content"><form method="post" action="{{ url_for('admin_login') }}">
-      <div class="modal-header"><h5 class="modal-title" id="loginModalLabel">Admin login</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-      <div class="modal-body sans"><label class="form-label" for="username">Username</label><input class="form-control mb-3" id="username" name="username" autocomplete="username" required><label class="form-label" for="password">Password</label><input class="form-control" id="password" name="password" type="password" autocomplete="current-password" required></div>
-      <div class="modal-footer"><button class="btn btn-primary" type="submit">Unlock controls</button></div>
-    </form></div></div>
+      </div>
+    </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Client-Side Real-Time Auto-Polling (every 4 seconds) -->
   <script>
-    (() => {
-      const identityInputs = document.querySelectorAll('input[name="registered_identity_id"]');
-      if (!identityInputs.length) return;
+    async function pollQueues() {
+      try {
+        const response = await fetch('/api/queues');
+        if (!response.ok) return;
+        const data = await response.json();
 
-      const individualMealSection = document.getElementById('individual-meal-section');
-      const individualMealInputs = individualMealSection ? individualMealSection.querySelectorAll('input[name="meal_option_id"]') : [];
-      const quantitySection = document.getElementById('individual-quantity-section');
-      const quantityInput = document.getElementById('quantity');
-      const panels = document.querySelectorAll('.team-preference-panel');
-      const submitButton = document.querySelector('form[action$="/register"] button[type="submit"]');
+        // Update Queues DOM
+        if (data.queues) {
+          for (const [qName, qData] of Object.entries(data.queues)) {
+            // Update Now Serving
+            const servingEl = document.getElementById(`serving-${qName}`);
+            if (servingEl) {
+              if (qData.now_serving) {
+                servingEl.innerHTML = `<span style="color: #38BDF8;">${qData.now_serving.public_id}</span>`;
+              } else {
+                servingEl.innerHTML = `<span style="font-size: 0.9rem; color: #64748B; font-weight: 500;">Ready for next</span>`;
+              }
+            }
 
-      function updateBreakdown(teamId) {
-        const target = document.querySelector(`.team-breakdown[data-team-id="${teamId}"]`);
-        if (!target) return;
-        const counts = {};
-        document.querySelectorAll(`.team-member-option[data-team-id="${teamId}"]`).forEach((select) => {
-          const selected = select.options[select.selectedIndex];
-          const name = selected && selected.dataset.optionName;
-          if (name) counts[name] = (counts[name] || 0) + 1;
-        });
-        const entries = Object.entries(counts);
-        target.innerHTML = entries.length
-          ? entries.map(([name, quantity]) => `<div class="d-flex justify-content-between"><span>${name}</span><strong>${quantity}</strong></div>`).join('')
-          : 'Choose member preferences to see the food breakdown.';
-      }
+            // Update Waiting Count
+            const badgeEl = document.getElementById(`badge-${qName}-waiting`);
+            if (badgeEl) {
+              badgeEl.innerText = `${qData.waiting_count} waiting`;
+            }
 
-      function updateReservationMode() {
-        const selected = document.querySelector('input[name="registered_identity_id"]:checked');
-        const selectedValue = selected ? selected.value : '';
-        const teamMatch = selectedValue.match(/^team:(\d+)$/);
-        const teamId = teamMatch ? teamMatch[1] : null;
-        const isTeam = Boolean(teamId);
-
-        if (individualMealSection) individualMealSection.classList.toggle('d-none', isTeam);
-        individualMealInputs.forEach((input) => {
-          input.disabled = isTeam;
-          input.required = !isTeam;
-        });
-        if (quantitySection) quantitySection.classList.toggle('d-none', isTeam);
-        if (quantityInput) {
-          quantityInput.disabled = isTeam;
-          quantityInput.required = !isTeam;
+            // Update Next in Line
+            const nextEl = document.getElementById(`next-${qName}`);
+            if (nextEl) {
+              if (qData.next_up && qData.next_up.length > 0) {
+                nextEl.innerHTML = qData.next_up.map(t => `<span class="next-pill">${t.public_id}</span>`).join('');
+              } else {
+                nextEl.innerHTML = `<span style="font-size: 0.75rem; color: #64748B;">No tickets in line</span>`;
+              }
+            }
+          }
         }
 
-        let selectedPanelHasMembers = true;
-        panels.forEach((panel) => {
-          const selectedPanel = panel.dataset.teamId === teamId;
-          panel.classList.toggle('d-none', !selectedPanel);
-          const selects = panel.querySelectorAll('.team-member-option');
-          selects.forEach((select) => {
-            select.disabled = !selectedPanel;
-            select.required = selectedPanel;
-          });
-          if (selectedPanel && !selects.length) selectedPanelHasMembers = false;
-          if (selectedPanel) updateBreakdown(teamId);
-        });
-        if (submitButton) submitButton.disabled = isTeam && !selectedPanelHasMembers;
+        // Update Announcements
+        if (data.announcements && data.announcements.length > 0) {
+          const annEl = document.getElementById('live-announcement-text');
+          if (annEl) {
+            const latest = data.announcements[0];
+            annEl.innerHTML = `<strong>${latest.posted_at || ''}:</strong> ${latest.message}`;
+          }
+        }
+      } catch (err) {
+        console.warn('Auto-poll error:', err);
       }
+    }
 
-      identityInputs.forEach((input) => input.addEventListener('change', updateReservationMode));
-      document.querySelectorAll('.team-member-option').forEach((select) => {
-        select.addEventListener('change', () => updateBreakdown(select.dataset.teamId));
-      });
-      updateReservationMode();
-    })();
+    // Auto-poll every 4000ms
+    setInterval(pollQueues, 4000);
   </script>
 </body>
 </html>
